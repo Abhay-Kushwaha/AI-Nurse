@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talking Cartoon</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        video {
+            width: 600px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            gap: 100px;
+            margin: 50px;
+        }
+
+        .text {
+            background-color: black;
+            width: 50%;
+            color: greenyellow;
+            border: 20px solid rgb(107, 108, 107);
+            padding: 20px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Talking Baby</h1>
+    <div class="container">
+        <div class="text">
+            Typhoid fever, caused by Salmonella Typhi bacteria, presents with symptoms like a persistent high fever, fatigue,
+            abdominal pain, and potentially a rash. Here's a more detailed look at the symptoms of typhoid fever: Early Symptoms
+            (1-3 weeks after exposure): Fever: A gradual increase in fever, potentially reaching as high as 103-104°F (39-40°C).
+            Fatigue and Weakness: Feeling generally unwell, with persistent tiredness and a lack of energy.
+        </div>
+        <video id="cartoon-video" src="{{ url_for('static', filename='video.mp4') }}" loop muted></video>
+    </div>
+
+    <audio id="audio" autoplay></audio>
+
+    <script>
+        window.onload = async function () {
+            try {
+                // Fetch the pre-generated speech file from Flask
+                const response = await fetch('/speak');
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                const audio = document.getElementById('audio');
+                audio.src = url;
+
+                const video = document.getElementById('cartoon-video');
+
+                // Add a button for user interaction
+                const button = document.createElement('button');
+                button.textContent = "Click to Hear Speech";
+                button.onclick = () => {
+                    audio.play();
+                    video.play();
+                    button.style.display = "none"; // Hide button after clicking
+
+                    // Stop video when audio ends
+                    audio.onended = () => video.pause();
+                };
+
+                document.body.appendChild(button);
+            } catch (error) {
+                console.error("Error loading speech:", error);
+            }
+        };
+    </script>
+</body>
+
+</html>
