@@ -1,22 +1,25 @@
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from gtts import gTTS
 import os
+import uuid
 
 app = Flask(__name__)
 
-TEXT_TO_SPEAK = "Important Note: Symptoms can vary in severity and may not appear in all individuals.If you suspect you or someone you know may have typhoid fever, seek medical attention immediately.  "
-
 @app.route('/')
 def home():
-    tts = gTTS(text=TEXT_TO_SPEAK, lang='en')
-    audio_file = "static/speech.mp3"
-    tts.save(audio_file)
-    
     return render_template('index.html')
 
-@app.route('/speak')
+@app.route('/speak', methods=['POST'])
 def speak():
-    return send_file("static/speech.mp3")
+    data = request.get_json()
+    user_text = data.get('text', '')
+    if not user_text.strip():
+        return jsonify({'error': 'Empty text'}), 400
+    filename = f"static/speech.mp3"
+    convert = gTTS(text=user_text, lang='en')
+    convert.save(filename)
+
+    return send_file(filename, mimetype="audio/mpeg")
 
 if __name__ == '__main__':
     app.run(debug=True)
